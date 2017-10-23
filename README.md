@@ -41,7 +41,7 @@ An example flow writing to a specific Web ID:
 
 >*Known Issues:* On some Web API server setups, you might see the node returns 500 error, but the value would be still updated on the Pi server. This might be related to your Pi Server configuration.
 
-For sample codes on the query command and node setup, please refer to our upcoming tutorial on [http://developers.sensetecnic.com](http://developers.sensetecnic.com/)
+For more info on the write node, please refer to our upcoming tutorial on [http://developers.sensetecnic.com](http://developers.sensetecnic.com/)
 
 
 ### Web API query node: Query data from Pi Server
@@ -64,6 +64,6 @@ An example flow code querying a point with a specific Web ID:
   [{"id":"919a963f.186748","type":"web-api-query","z":"543e65ad.2f3a4c","name":"","server":"64727ec0.eb85f","queryMethod":"webId","webId":"P0RBbjFMMXuUivIEAgCXqPnADwAAAARUMyQU1BWi05SEVKVlRMXEtIT1VfUkVMQVRJVkVfSFVNSURJVFk","dataType":"self","customUrl":"","x":359,"y":173,"wires":[["8023a61c.a03078"]]},{"id":"a774c1cd.57ba9","type":"inject","z":"543e65ad.2f3a4c","name":"","topic":"","payload":"","payloadType":"date","repeat":"","crontab":"","once":false,"x":162,"y":164,"wires":[["919a963f.186748"]]},{"id":"8023a61c.a03078","type":"debug","z":"543e65ad.2f3a4c","name":"","active":true,"console":"false","complete":"true","x":529,"y":170,"wires":[]},{"id":"64727ec0.eb85f","type":"web-api-client","z":"","name":"","serverURL":"my-pi-server/piwebapi","authenticateMethod":"basic","usetls":true,"tls":"b50d2d8b.bbace"},{"id":"b50d2d8b.bbace","type":"tls-config","z":"","name":"","cert":"","key":"","ca":"","certname":"","keyname":"","caname":"","verifyservercert":false}]
   ```
 
-For sample codes on the query command and node setup, please refer to our upcoming tutorial on [http://developers.sensetecnic.com](http://developers.sensetecnic.com/)
+For more info on the query node, please refer to our upcoming tutorial on [http://developers.sensetecnic.com](http://developers.sensetecnic.com/)
 
 
