@@ -1,0 +1,26 @@
+{
+  "name": "node-red-contrib-osisoft-web-api",
+  "version": "0.0.1",
+  "description": "A node module for connecting to OSIsoft Web API Server",
+  "main": "osisoft-web-api.js",
+  "keywords": [
+    "node-red",
+    "osisoft",
+    "web-api"
+  ],
+  "author": {
+    "name": "Michael Qiu",
+    "email": "mqiu@sensetecnic.com",
+    "company": "Sense Tecnic"
+  },
+  "node-red": {
+    "nodes": {
+      "web-api": "osisoft-web-api.js"
+    }
+  },
+  "license": "Apache-2.0",
+  "dependencies": {
+    "request": "2.76.0",
+    "bluebird": "^3.5.0"
+  }
+}

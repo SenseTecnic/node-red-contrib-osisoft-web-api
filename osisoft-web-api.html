@@ -1,0 +1,368 @@
+<script type="text/javascript">
+  RED.nodes.registerType('web-api-client', {
+    category: 'config',
+    defaults: {
+      name: { value:""},
+      serverURL: {value:"", required:true},
+      authenticateMethod: {value:"", required:true},
+      usetls: {value: false},
+      tls: {type: "tls-config", required: false}
+    },
+    credentials:{
+      username:{type:"text"},
+      password:{type:"password"}
+    },
+    inputs:0,
+    outputs:0,
+    label: function() {
+      return this.name || "web-api-config";
+    },
+    oneditprepare: function() {
+      var showCredentialFields = function () {
+        var authenticateMethodSelected = $("#node-config-input-authenticateMethod").val();
+        if (authenticateMethodSelected === 'basic') {
+          $("#node-credentials").show();
+        } else {
+          $("#node-credentials").hide();
+        }
+      };
+      $("#node-config-input-authenticateMethod").change(function () {
+        showCredentialFields();
+      });
+      showCredentialFields();
+
+      if (typeof this.usetls === 'undefined') {
+        this.usetls = false;
+        $("#node-config-input-usetls").prop("checked",false);
+      }
+      function updateTLSOptions() {
+        if ($("#node-config-input-usetls").is(':checked')) {
+          $("#node-config-row-tls").show();
+        } else {
+          $("#node-config-row-tls").hide();
+        }
+      }
+      updateTLSOptions();
+      $("#node-config-input-usetls").on("click",function() {
+        updateTLSOptions();
+      });
+    }
+});
+</script>
+
+<script type="text/x-red" data-template-name="web-api-client">
+  <div class="form-row">
+      <label for="node-config-input-name"><i class="icon-tag"></i><span data-i18n="web-api.label.name"></span></label>
+      <input type="text" id="node-config-input-name" data-i18n="[placeholder]web-api.label.name">
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-serverURL"><i class="icon-tag"></i><span data-i18n="web-api.label.serverURL"></span></label>
+    <input type="text" id="node-config-input-serverURL" placeholder="<myserver>/piwebapi">
+  </div>
+  <div class="form-row">
+    <input type="checkbox" id="node-config-input-usetls" style="display: inline-block; width: auto; vertical-align: top;">
+    <label for="node-config-input-usetls" style="width: auto" data-i18n="web-api.label.use-tls"></label>
+    <div id="node-config-row-tls" class="hide">
+      <label style="width: auto; margin-left: 20px; margin-right: 10px;" for="node-config-input-tls"><span data-i18n="web-api.label.tls-config"></span></label>
+      <input style="width: 300px;" type="text" id="node-config-input-tls">
+    </div>
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-authenticateMethod"><i class="icon-tag"></i><span data-i18n="web-api.label.authenticateMethod"></span></label>
+    <select type="text" id="node-config-input-authenticateMethod" style="width:70%;">
+      <option value="basic" data-i18n="web-api.label.basic"></option>
+      <option value="anonymous" data-i18n="web-api.label.anonymous"></option>
+    </select>
+  </div>
+  <div class="form-row" id="node-credentials">
+    <div class="form-row">
+      <label for="node-config-input-username"><i class="icon-tag"></i><span data-i18n="web-api.label.username"></span></label>
+      <input type="text" id="node-config-input-username" data-i18n="[placeholder]web-api.label.username">
+    </div>
+    <div class="form-row">
+      <label for="node-config-input-password"><i class="icon-tag"></i><span data-i18n="web-api.label.password"></span></label>
+      <input type="password" id="node-config-input-password" data-i18n="[placeholder]web-api.label.password">
+    </div>
+  </div>
+</script>
+
+<script type="text/x-red" data-help-name="web-api-client">
+  <p>Fill in information for setting up the connection to Osisoft Pi Server</p>
+  <ul>
+    <li><b>Name:</b> Enter a name for this configuration node</li>
+    <li><b>Server Url:</b> Enter the server URL to your OSIsoft Pi server, For example: <code>my.server/piwebapi</code></li>
+    <li><b>Enable secure (SSL/TLS) connection:</b> Set to use SSL connection. For self-signed certificate, just leave <b>Verify server certificate</b> unchecked.</li>
+    <li><b>Authenticate Method</b> Select authentication method. If <i>Basic</i> is selected, username and password would be required</li>
+    <li><b>Username:</b> Enter the username to access the OSIsoft Pi Server. If domain name is a part of the username, please enter it before your username. For example, <code>my-domain\my-username</code></li>
+    <li><b>password:</b> Enter the password to access the OSIsoft Pi Server for the username entered</li> 
+  </ul>
+</script>
+
+<script type="text/javascript">
+  RED.nodes.registerType('web-api-write',{
+    category: 'OSIsoft',
+    color: '#6aa9ed',
+    defaults: {
+      name: { value:""},
+      server:{type:"web-api-client", required:true},
+      writeMethod:{value:"", required:true},
+      webId: {type:"text"},
+      piDB: {type:'text'},
+      piTag: {type:"text"},
+      customUrl: {value:""},
+      requestMethod: {value:""}
+    },
+    icon: "OSIsoft-web-api.png",
+    align: "right",
+    paletteLabel:"web api write",
+    inputs:1,
+    outputs:1,
+    label: function() {
+      return this.name||"web api write";
+    },
+    oneditprepare: function() {
+      $("#node-path-fields").hide();
+      $("#node-webId-fields").hide();
+      $("#node-custom-url").hide();
+      $('#node-custom-method').hide();
+    
+      var showWriteFields = function () {
+        var writeMethodSelected = $("#node-input-writeMethod").val();
+        if (writeMethodSelected === 'webId') {
+          $("#node-webId-fields").show();
+          $("#node-path-fields").hide();
+          $("#node-custom-url").hide();
+          $('#node-custom-method').show();
+        } else if (writeMethodSelected === 'path') {
+          $("#node-path-fields").show();
+          $("#node-webId-fields").hide();
+          $("#node-custom-url").hide();
+          $('#node-custom-method').show();
+        } else if (writeMethodSelected === 'custom') {
+          $("#node-path-fields").hide();
+          $("#node-webId-fields").hide();
+          $("#node-custom-url").show();
+          $('#node-custom-method').show();
+      };
+    };
+      $("#node-input-writeMethod").change(function () {
+        showWriteFields();
+      });
+      showWriteFields();
+    }    
+  });
+</script>
+
+<script type="text/x-red" data-template-name="web-api-write">
+  <div class="form-row">
+    <label for="node-input-name"><i class="icon-tag"></i><span data-i18n="web-api.label.name"></span></label>
+    <input type="text" id="node-input-name" data-i18n="[placeholder]web-api.label.name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-server"><i class="fa fa-bookmark"></i><span data-i18n="web-api.label.webApiServer"></span></label>
+    <input type="text" id="node-input-server">
+  </div>
+  <div class="form-row">
+    <label for="node-input-writeMethod"><i class="icon-tag"></i><span data-i18n="web-api.label.writeMethod"></span></label>
+    <select type="text" id="node-input-writeMethod" style="width:70%;">
+      <option value="webId" data-i18n="web-api.label.byWebId"></option>
+      <option value="path" data-i18n="web-api.label.byPath"></option>
+      <option value="custom" data-i18n="web-api.label.byCustomUrl"></option>
+    </select>
+  </div>
+  <div class="form-row" id="node-webId-fields">
+    <div class="form-row">
+      <label for="node-input-webId"><i class="fa fa-bookmark"></i><span data-i18n="web-api.label.webId"></span></label>
+      <input type="text" id="node-input-webId">
+    </div> 
+  </div> 
+  <div class="form-row" id="node-path-fields">
+    <div class="form-row">
+      <label for="node-input-piDB"><i class="fa fa-bookmark"></i><span data-i18n="web-api.label.piDb"></span></label>
+      <input type="text" id="node-input-piDB">
+    </div> 
+    <div class="form-row">
+      <label for="node-input-piTag"><i class="fa fa-bookmark"></i><span data-i18n="web-api.label.piTag"></span></label>
+      <input type="text" id="node-input-piTag">
+    </div> 
+  </div>
+  <div class="form-row" id="node-custom-url">
+    <label for="node-input-customUrl"><i class="fa fa-bookmark"></i><span data-i18n="web-api.label.URL"></span></label>
+    <input type="text" id="node-input-customUrl">    
+  </div>  
+  <div class="form-row" id="node-custom-method">
+    <label for="node-input-requestMethod"><i class="icon-tag"></i><span data-i18n="web-api.label.requestMethod"></span></label>
+    <select type="text" id="node-input-requestMethod" style="width:70%;">
+      <option value="POST" data-i18n="web-api.label.post"></option>
+      <option value="PUT" data-i18n="web-api.label.put"></option>
+      <option value="DELETE" data-i18n="web-api.label.delete"></option>
+    </select>
+  </div>
+</script>
+
+<script type="text/x-red" data-help-name="web-api-write">
+  <p>This is the node to write data into the Pi server.</p>
+  <p>
+    <ul>
+      <li><b>Name: </b> Set the name of this node.</li>
+      <li><b>Web API server: </b> Set the Pi Web API Server configuration.</li>
+      <li><b>Write Method:</b> Choose how to write data into the Pi Web API server. Currently this node supports:
+          <ul>
+            <li><i>By Web ID:</i> Write to a point in Data Servers by referring to a specific Web ID.</li>
+            <li><i>By Point Path:</i> Write to a point in Data Servers by referring to the path in the data servers.
+              <ul>
+                <li>Pi Server: Enter the name of the Pi Server</li>
+                <li>Pi Tag: Enter the name of the Pi Element</li>
+              </ul>
+            </li>
+            <li><i>By Custom URL:</i> Write to an URL relative to the base Web API URL set in the configuration node. 
+          </ul>   
+      </li>
+      <li><b>Request Method:</b> Set the request method</li>
+    </ul>
+  </p>
+</script>
+
+<script type="text/javascript">
+  RED.nodes.registerType('web-api-query',{
+    category: 'OSIsoft',
+    color: '#6aa9ed',
+    defaults: {
+      name: { value:""},
+      server:{type:"web-api-client", required:true},
+      queryMethod:{value:"", required:true},
+      webId: {value:""},
+      piDB: {value:""},
+      piTag: {value:""},
+      dataType: {value:""},
+      customUrl: {value:""}
+    },
+    icon: "OSIsoft-web-api.png",
+    align: "left",
+    paletteLabel:"web api query",
+    inputs:1,
+    outputs:1,
+    label: function() {
+      return this.name||"web api query";
+    },
+    oneditprepare: function() {
+      $("#node-path-fields").hide();
+      $("#node-webId-fields").hide();
+      $("#node-custom-url").hide();
+      $("#node-datatype").hide();
+
+      var showQueryFields = function () {
+        var queryMethodSelected = $("#node-input-queryMethod").val();
+        if (queryMethodSelected === 'webId') {
+          $("#node-webId-fields").show();
+          $("#node-path-fields").hide();
+          $("#node-custom-url").hide();
+          $("#node-datatype").show();
+        } else if (queryMethodSelected === 'path') {
+          $("#node-path-fields").show();
+          $("#node-webId-fields").hide();
+          $("#node-custom-url").hide();
+          $("#node-datatype").show();
+        } else if (queryMethodSelected === 'custom') {
+          $("#node-path-fields").hide();
+          $("#node-webId-fields").hide();
+          $("#node-datatype").hide();
+          $("#node-custom-url").show();
+        } else if (queryMethodSelected === 'listAllAssertDb' || queryMethodSelected === 'ListAllElements'
+                    || queryMethodSelected === 'ListAllDataServers' || queryMethodSelected === 'ListAllPoints') {
+          $("#node-path-fields").hide();
+          $("#node-webId-fields").hide();
+          $("#node-datatype").hide();
+          $("#node-custom-url").hide();
+        }
+      };
+      $("#node-input-queryMethod").change(function () {
+        showQueryFields();
+      });
+      showQueryFields();
+    }
+  });
+</script>
+
+<script type="text/x-red" data-template-name="web-api-query">
+  <div class="form-row">
+    <label for="node-input-name"><i class="icon-tag"></i><span data-i18n="web-api.label.name"></span></label>
+    <input type="text" id="node-input-name" data-i18n="[placeholder]web-api.label.name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-server"><i class="fa fa-bookmark"></i><span data-i18n="web-api.label.webApiServer"></span></label>
+    <input type="text" id="node-input-server">
+  </div> 
+  <div class="form-row">
+    <label for="node-input-queryMethod"><i class="icon-tag"></i><span data-i18n="web-api.label.queryMethod"></span></label>
+    <select type="text" id="node-input-queryMethod" style="width:70%;">
+      <option value="webId" data-i18n="web-api.label.byWebId"></option>
+      <option value="path" data-i18n="web-api.label.byPath"></option>
+      <option value="custom" data-i18n="web-api.label.byCustomUrl"></option>
+      <option value="listAllAssetServers" data-i18n="web-api.label.listAllAssetServers"></option>
+      <option value="listAllAssetDb" data-i18n="web-api.label.listAllAssetDb"></option>
+      <option value="listAllDataServers" data-i18n="web-api.label.listAllDataServers"></option>
+      <option value="listAllPoints" data-i18n="web-api.label.listAllPoints"></option>
+    </select>
+  </div>
+  <div class="form-row" id="node-webId-fields">
+    <div class="form-row">
+      <label for="node-input-webId"><i class="fa fa-bookmark"></i><span data-i18n="web-api.label.webId"></span></label>
+      <input type="text" id="node-input-webId">
+    </div> 
+  </div> 
+  <div class="form-row" id="node-path-fields">
+    <div class="form-row">
+      <label for="node-input-piDB"><i class="fa fa-bookmark"></i><span data-i18n="web-api.label.piDb"></span></label>
+      <input type="text" id="node-input-piDB">
+    </div> 
+    <div class="form-row">
+      <label for="node-input-piTag"><i class="fa fa-bookmark"></i><span data-i18n="web-api.label.piTag"></span></label>
+      <input type="text" id="node-input-piTag">
+    </div> 
+  </div>
+  <div class="form-row" id="node-datatype">
+    <label for="node-input-dataType"><i class="icon-tag"></i><span data-i18n="web-api.label.dataType"></span></label>
+    <select type="text" id="node-input-dataType" style="width:70%;">
+      <option value="self" data-i18n="web-api.label.self"></option>
+      <option value="value" data-i18n="web-api.label.value"></option>
+      <option value="interpolated" data-i18n="web-api.label.interpolatedData"></option>
+      <option value="recorded" data-i18n="web-api.label.recordedData"></option>
+      <option value="plot" data-i18n="web-api.label.plotData"></option>
+      <option value="summary" data-i18n="web-api.label.summaryData"></option>
+      <option value="end" data-i18n="web-api.label.endData"></option>
+      <option value="attributes" data-i18n="web-api.label.attributes"></option>
+    </select>
+  </div>
+  <div class="form-row" id="node-custom-url">
+    <label for="node-input-customUrl"><i class="fa fa-bookmark"></i><span data-i18n="web-api.label.URL"></span></label>
+    <input type="text" id="node-input-customUrl">    
+  </div>
+</script>
+
+<script type="text/x-red" data-help-name="web-api-query">
+  <p>This is the node to query data from the Pi server.</p>
+  <p>
+    <ul>
+      <li><b>Name: </b> Set the name of this node.</li>
+      <li><b>Web API server: </b> Set the Pi Web API Server configuration.</li>
+      <li><b>Query Method:</b> Choose how to query data from the Pi Web API server. Currently this node supports:
+          <ul>
+            <li><i>By Web ID:</i> Write to a point in Data Servers by referring to a specific Web ID.</li>
+            <li><i>By Point Path:</i> Write to a point in Data Servers by referring to the path in the data servers.
+              <ul>
+                <li>Pi Server: Enter the name of the Pi Server</li>
+                <li>Pi Tag: Enter the name of the Pi Element</li>
+              </ul>
+            </li>
+            <li><i>By Custom URL:</i> Write to an URL relative to the base Web API URL set in the configuration node. 
+            <li><i>List All Assert Servers: </i>List all assert servers from the Pi server</li>
+            <li><i>List All DBs in Assert Servers: </i>List all databases from all assert servers</li>
+            <li><i>List All Data Servers: </i>List all data servers from the Pi server</li>
+            <li><i>List All points in Data Servers: </i>List all points from all data servers</li>    
+          </ul>   
+      </li>
+      <li><b>Data type:</b> Choose which field of the data point to return.</li>
+    </ul>
+  </p>
+</script>
