@@ -1,8 +1,8 @@
 # node-red-contrib-osisoft-web-api
 
-These are [Node-RED](http://nodered.org) nodes that interface with the [OSISoft Web API server](https://www.osisoft.https://techsupport.osisoft.com/Products/Developer-Technologies/PI-Web-API/Overviewcom/). The nodes simplify the process of developing an application to write data and to query data.
+These are [Node-RED](http://nodered.org) nodes that interface with the [OSISoft Web API server](https://techsupport.osisoft.com/Products/Developer-Technologies/PI-Web-API/Overviewcom/). The nodes simplify the process of developing an application to write data and to query data.
 
-For more information of these nodes, tutorials will be available on [http://developers.sensetecnic.com](http://developers.sensetecnic.com/article/tutorial-using-fred-to-interface-timeseries-on-predix/) soon.
+For more information of these nodes, tutorials will be available on [http://developers.sensetecnic.com](http://developers.sensetecnic.com/) soon.
 
 
 ## Pre-requesites
