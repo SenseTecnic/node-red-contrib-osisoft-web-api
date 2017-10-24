@@ -77,15 +77,15 @@ module.exports = function (RED) {
     };
   };
 
-  webAPIClientNode.prototype.writeByWebId = function (protocal, webId, method, data, node, cert, key, CA) { 
+  webAPIClientNode.prototype.writeByWebId = function (protocol, webId, method, data, node) { 
     var url= '/streams/' + webId + "/value";
-    return node.server.writeByCustomUrl(protocal, url, method, data, node, cert, key, CA);
+    return node.server.writeByCustomUrl(protocol, url, method, data, node);
   };    
 
-  webAPIClientNode.prototype.writeByCustomUrl = function (protocal, url, method, data, node, cert, key, CA) {
+  webAPIClientNode.prototype.writeByCustomUrl = function (protocol, url, method, data, node) {
     return new Promise(function(resolve, reject) { 
       var requestOptions = {
-        url: protocal + node.server.baseUrl + url,
+        url: protocol + node.server.baseUrl + url,
         headers: {
           'Authorization': node.server.generateAuth(),
           'Content-Type': 'application/json'
@@ -93,21 +93,9 @@ module.exports = function (RED) {
         json:true,
         "Cache-Control": "no-cache",
         method: method,
-        rejectUnauthorized: false,
+        rejectUnauthorized: false, //Ignore self-signed certificate on Web API server
         body: data
       };
-  
-      if (typeof cert !== 'undefined') {
-        requestOptions.cert = cert;
-      }
-  
-      if (typeof key !== 'undefined') {
-        requestOptions.key = key;
-      }
-  
-      if (typeof CA !== 'undefined') {
-        requestOptions.ca = CA;
-      }
   
       request(requestOptions, function(error, response, body){
         if(error) {
@@ -124,7 +112,7 @@ module.exports = function (RED) {
     });
   };
 
-  webAPIClientNode.prototype.queryByWebId = function (protocal, webId, node, dataType, cb, cert, key, CA) {
+  webAPIClientNode.prototype.queryByWebId = function (protocol, webId, node, dataType) {
     var queryByWebIdUrl = "";
     if (dataType === 'attributes') {
       queryByWebIdUrl = "/points/" + webId + '/' + dataType;
@@ -133,15 +121,33 @@ module.exports = function (RED) {
     } else {
       queryByWebIdUrl = '/streams/' + webId + '/' + dataType;
     }
-    return node.server.queryByCustomUrl(protocal, node, {relativeUrl:queryByWebIdUrl}, cb, cert, key, CA);
+    return node.server.queryByCustomUrl(protocol, node, {relativeUrl:queryByWebIdUrl});
   };
 
-  webAPIClientNode.prototype.queryByPath = function (protocal, urlparam, node, cert, key, CA) {
+  webAPIClientNode.prototype.queryByPath = function (protocol, urlparam, node) {
     return new Promise(function(resolve, reject) {
       var queryByPathUrl = '/points?path=' + urlparam;
-      var postAction = function (error, response) {
+      resolve(node.server.queryByCustomUrl(protocol, node, {relativeUrl:queryByPathUrl}));
+    });
+  };
+
+  webAPIClientNode.prototype.queryByCustomUrl = function (protocol, node, customUrl) {
+    return new Promise(function(resolve, reject) {
+      var requestOptions = {
+        url: (customUrl.hasOwnProperty('relativeUrl'))? (protocol + node.server.baseUrl + customUrl.relativeUrl) : customUrl.fullUrl,
+        headers: {
+          'Authorization': node.server.generateAuth(),
+          'Content-Type': 'application/json'
+        },
+        json:true,
+        "Cache-Control": "no-cache",
+        method: "GET",
+        rejectUnauthorized: false //Ignore self-signed certificate on Web API server
+      };
+      
+      request(requestOptions, function(error, response) {
         if(error) {
-          return reject(error)
+          return reject(error);
         };
         if( !response.hasOwnProperty('statusCode') || response.statusCode !== 200 ) {
           return reject(error);
@@ -151,58 +157,7 @@ module.exports = function (RED) {
           return resolve(result);
         }
         catch(e) {
-          return reject(e);
-        };
-      };
-      return node.server.queryByCustomUrl(protocal, node, {relativeUrl:queryByPathUrl}, postAction, cert, key, CA);
-    });
-  };
-
-  webAPIClientNode.prototype.queryByCustomUrl = function (protocal, node, customUrl, cb, cert, key, CA) {
-    return new Promise(function(resolve, reject) {
-      var requestOptions = {
-        url: (customUrl.hasOwnProperty('relativeUrl'))? (protocal + node.server.baseUrl + customUrl.relativeUrl) : customUrl.fullUrl,
-        headers: {
-          'Authorization': node.server.generateAuth(),
-          'Content-Type': 'application/json'
-        },
-        json:true,
-        "Cache-Control": "no-cache",
-        method: "GET",
-        rejectUnauthorized: false
-      };
-
-      if (typeof cert !== 'undefined') {
-        requestOptions.cert = cert;
-      }
-
-      if (typeof key !== 'undefined') {
-        requestOptions.key = key;
-      }
-
-      if (typeof CA !== 'undefined') {
-        requestOptions.ca = CA;
-      }
-      
-      request(requestOptions, function(error, response) {
-        if (cb) {
-          //overwrite cb
-          cb(error, response);
-        } else {
-          //default action for response
-          if(error) {
-            return reject(error);
-          };
-          if( !response.hasOwnProperty('statusCode') || response.statusCode !== 200 ) {
-            return reject(error);
-          };
-          try{
-            var result = (typeof response.body === 'string')? JSON.parse(response.body) : response.body;
-            return resolve(result);
-          }
-          catch(e) {
-            return reject(error);
-          };
+          return reject(error);
         };
       });
     });
@@ -216,16 +171,16 @@ module.exports = function (RED) {
     node.piDB = config.piDB;
     node.piTag = config.piTag;
     
-    if(node.server == 'null' || typeof node.server == 'undefined') {
+    if(node.server === null || typeof node.server === "undefined") {
       node.error(RED._('web-api.errors.authentication-method-missing'));
     };
 
-    if(config.writeMethod == 'null' || config.writeMethod.length == 0) {
+    if(config.writeMethod === null || config.writeMethod.length === 0) {
       node.error(RED._('web-api.errors.write-method-missing'));
     };
 
-    if (node.server) {
-      this.on('input', function (msg) {
+    this.on('input', function (msg) {
+      if (node.server) {
         if (!msg.hasOwnProperty('payload')) {
           node.error(RED._('web-api.errors.check-msg-format'));
         };
@@ -239,7 +194,7 @@ module.exports = function (RED) {
             break;
 
           case "path":
-            if (config.piDB == null || config.piDB.length == 0 || config.piTag == null || config.piTag.length == 0) {
+            if (config.piDB === null || config.piDB.length === 0 || config.piTag === null || config.piTag.length === 0) {
               node.error(RED._('web-api.errors.path-element-missing'));
             } else {
               node.piDB = config.piDB;
@@ -255,7 +210,6 @@ module.exports = function (RED) {
                 node.error(e);
               }); 
             }
-
             break;
 
           case "custom":
@@ -270,10 +224,10 @@ module.exports = function (RED) {
             node.error(RED._("web-api.errors.write-method-missing"));
             break;
         };
-      });
-    } else {
-      node.error(RED._("web-api.errors.client-undefined"));
-    };
+      } else {
+        node.error(RED._("web-api.errors.client-undefined"));
+      };
+    });
   };
 
   RED.nodes.registerType("web-api-write", webApiWriteNode);
@@ -285,19 +239,19 @@ module.exports = function (RED) {
     node.webId = config.webId;
     node.dataType = config.dataType || 'value';
 
-    if(node.server == 'null' || typeof node.server == 'undefined') {
+    if(node.server === null || typeof node.server === "undefined") {
       node.error(RED._('web-api.errors.authentication-method-missing'));
     };
 
-    if(config.queryMethod == 'null' || config.queryMethod.length == 0) {
+    if(config.queryMethod === null || config.queryMethod.length === 0) {
       node.error(RED._('web-api.errors.query-method-missing'));
     };
 
-    if (node.server) {
-      this.on("input", function (msg) {
+    this.on("input", function (msg) {
+      if (node.server) {
         switch(config.queryMethod) {
           case "webId":
-            if (node.webId == null || node.webId.length == 0) {
+            if (node.webId === null || node.webId.length === 0) {
               node.error(RED._('web-api.errors.webid-missing'));
             } else {
               node.webId = config.webId;
@@ -310,7 +264,7 @@ module.exports = function (RED) {
             break;
 
           case "path":
-            if (config.piDB == null || config.piDB.length == 0 || config.piTag == null || config.piTag.length == 0) {
+            if (config.piDB === null || config.piDB.length === 0 || config.piTag === null || config.piTag.length === 0) {
               node.error(RED._('web-api.errors.path-element-missing'));
             } else {
               node.piDB = config.piDB;
@@ -340,7 +294,7 @@ module.exports = function (RED) {
           case "listAllAssetDb":
             var assetDb = [];
             var promises = [];
-           
+          
             var getDb = function(url, node) {             
               return new Promise(function(resolve, reject) {            
                 resolve(node.server.queryByCustomUrl(node.server.httpProtocal, node, {fullUrl:url}));
@@ -416,12 +370,11 @@ module.exports = function (RED) {
             node.server.queryByCustomUrl(node.server.httpProtocal, node, '');
             break;
         };
-      });
-    } else {
-      node.error(RED._("web-api.errors.client-undefined"));
-    }
+      } else {
+        node.error(RED._("web-api.errors.client-undefined"));
+      };
+    });
   };
     
   RED.nodes.registerType("web-api-query", webApiQueryNode);  
-
 };
