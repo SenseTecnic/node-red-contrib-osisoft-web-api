@@ -15,7 +15,6 @@
             "byWebId":" By Web ID for points in Data Servers",
             "byPath":" By point path in Data Servers",
             "webId":" Web ID",
-            "afDb":" Asset Framework DB",
             "queryMethod":" Query Method",
             "byCustomUrl":" By custom URL",
             "piDb":" Pi Server",
