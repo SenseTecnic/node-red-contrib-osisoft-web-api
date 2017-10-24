@@ -6,12 +6,18 @@
   "keywords": [
     "node-red",
     "osisoft",
-    "web-api"
+    "web",
+    "api",
+    "pi"
   ],
   "author": {
     "name": "Michael Qiu",
     "email": "mqiu@sensetecnic.com",
     "company": "Sense Tecnic"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SenseTecnic/node-red-contrib-osisoft-web-api.git"
   },
   "node-red": {
     "nodes": {
