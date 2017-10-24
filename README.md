@@ -7,7 +7,7 @@ For more information of these nodes, tutorials will be available on [http://deve
 
 ## Pre-requesites
 
-To run these nodes, you need to:
+To run these nodes, you need to have:
 
    * A running OSIsoft Pi Server
    * A running OSIsoft Pi Web API server associated with the Pi Server
