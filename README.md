@@ -39,8 +39,6 @@ An example flow writing to a specific Web ID:
 ```
 
 
->*Known Issues:* On some Web API server setups, you might see the node returns 500 error, but the value would be still updated on the Pi server. This might be related to your Pi Server configuration.
-
 For more info on the write node, please refer to our upcoming tutorial on [http://developers.sensetecnic.com](http://developers.sensetecnic.com/)
 
 
