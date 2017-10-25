@@ -96,10 +96,12 @@ module.exports = function (RED) {
         rejectUnauthorized: false, //Ignore self-signed certificate on Web API server
         body: data
       };
-  
       request(requestOptions, function(error, response, body){
         if(error) {
           return reject(error);
+        };
+        if( !response.hasOwnProperty('statusCode') || response.statusCode !== 202 ) {
+          return reject({statusCode:response.statusCode, payload:response.body});
         };
         try{
           var result = (typeof response.body === 'string')? JSON.parse(response.body) : response.body;
@@ -150,7 +152,7 @@ module.exports = function (RED) {
           return reject(error);
         };
         if( !response.hasOwnProperty('statusCode') || response.statusCode !== 200 ) {
-          return reject(error);
+          return reject({statusCode:response.statusCode, payload:response.body});
         };
         try{
           var result = (typeof response.body === 'string')? JSON.parse(response.body) : response.body;
