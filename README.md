@@ -9,11 +9,11 @@ For more information of these nodes, please refer to our tutorial on [http://dev
 
 To run these nodes, you need to have:
 
-   * A running OSIsoft Pi Server
-   * A running OSIsoft Pi Web API server associated with the Pi Server
-   * The OSIsoft Pi Web API server will need to be configurated using "Basic" or "Anonymous" authentication methods. 
-   * Pi identities with appropriate read/write access privileges are required to access to Pi server 
-   * You can find more infomation on OSIsoft Pi Server [product page](https://techsupport.osisoft.com/Products/PI-Server). 
+   * A running OSIsoft PI Server
+   * A running OSIsoft PI Web API server associated with the PI Server
+   * The OSIsoft PI Web API server will need to be configurated using "Basic" or "Anonymous" authentication methods. 
+   * PI identities with appropriate read/write access privileges are required to access to PI server 
+   * You can find more infomation on OSIsoft PI Server [product page](https://techsupport.osisoft.com/Products/PI-Server). 
 
 ## Install
 
@@ -27,7 +27,7 @@ Usually this is `~/.node-red` .
 
 ### Web API write node: Write data to Pi Server
 
-This is the node to write data to the Pi server. Currently, you can either write data to points in your data servers by Web ID, point paths, or you can write data to any other API endpoints with your own URL input.
+This is the node to write data to the PI Server. Currently, you can either write data to points in your data servers by Web ID, point paths, or you can write data to any other API endpoints with your own URL input.
 
   * By Web ID: Write to a point in data servers by using Web ID
   * By Point Path: Write to a point in data servers by using the point path. The node will first query the path, and write to that point using the Web ID returned from the query.
@@ -42,9 +42,9 @@ An example flow writing to a specific Web ID:
 For more info on the write node, please refer to our tutorial on [http://developers.sensetecnic.com](http://developers.sensetecnic.com/article/tutorial-using-the-osisoft-pi-web-api-node-with-fred-cloud-node-red/).
 
 
-### Web API query node: Query data from Pi Server
+### Web API query node: Query data from PI Server
 
-This is the node to query data from the Pi server. Currently, you can either query points from your Pi Data servers by Web ID, point paths, and preset features, or you can query any other data with your own URL input. 
+This is the node to query data from the PI server. Currently, you can either query points from your PI Data servers by Web ID, point paths, and preset features, or you can query any other data with your own URL input. 
 
   * By Web ID: Query a point in data servers by using Web ID
   * By Point path: Query a point in data servers by using the point path
@@ -52,9 +52,9 @@ This is the node to query data from the Pi server. Currently, you can either que
 
 These are the preset features where you can:
 
-  * List all Assert servers: List all the assert servers from your Pi server
+  * List all Assert servers: List all the assert servers from your PI Server
   * List all DBs in Assert Servers: List all the databases from all assert servers
-  * List all Data Servers: List all the data servers from the Pi Server
+  * List all Data Servers: List all the data servers from the PI Server
   * List all points in Data Servers: List all points from all data servers.
 
 An example flow code querying a point with a specific Web ID:
