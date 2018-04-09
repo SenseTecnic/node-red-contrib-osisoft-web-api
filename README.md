@@ -11,7 +11,8 @@ To run these nodes, you need to have:
 
    * A running OSIsoft PI Server
    * A running OSIsoft PI Web API server associated with the PI Server
-   * The OSIsoft PI Web API server will need to be configurated using "Basic" or "Anonymous" authentication methods. 
+   * The OSIsoft PI Web API server will need to be configured using "Basic" or "Anonymous" authentication methods.
+   * EnableCSRFDefense flag must be set to "False" in WebAPI system configuration.
    * PI identities with appropriate read/write access privileges are required to access to PI server 
    * You can find more infomation on OSIsoft PI Server [product page](https://techsupport.osisoft.com/Products/PI-Server). 
 
@@ -37,7 +38,6 @@ An example flow writing to a specific Web ID:
 ```
 [{"id":"96264f9e.af0bd","type":"web-api-write","z":"543e65ad.2f3a4c","name":"","server":"64727ec0.eb85f","writeMethod":"webId","webId":"P0RBbjFMMXuUivIEAgCXqPnADwAAAARUMyQU1BWi05SEVKVlRMXEtIT1VfUkVMQVRJVkVfSFVNSURJVFk","requestMethod":"POST","x":585,"y":381,"wires":[["19d58c27.3e2c84"]]},{"id":"5441511c.03566","type":"inject","z":"543e65ad.2f3a4c","name":"","topic":"","payload":"","payloadType":"date","repeat":"","crontab":"","once":false,"x":258,"y":338,"wires":[["7b828585.10df2c"]]},{"id":"7b828585.10df2c","type":"function","z":"543e65ad.2f3a4c","name":"post value","func":"msg.payload = {\n    \"Value\":31.5\n}\nreturn msg;","outputs":1,"noerr":0,"x":425,"y":362,"wires":[["96264f9e.af0bd"]]},{"id":"19d58c27.3e2c84","type":"debug","z":"543e65ad.2f3a4c","name":"","active":true,"console":"false","complete":"true","x":771,"y":356,"wires":[]},{"id":"64727ec0.eb85f","type":"web-api-client","z":"","name":"","serverURL":"my-pi-server/piwebapi","authenticateMethod":"basic","usetls":true,"tls":"b50d2d8b.bbace"},{"id":"b50d2d8b.bbace","type":"tls-config","z":"","name":"","cert":"","key":"","ca":"","certname":"","keyname":"","caname":"","verifyservercert":false}]
 ```
-
 
 For more info on the write node, please refer to our tutorial on [http://developers.sensetecnic.com](http://developers.sensetecnic.com/article/tutorial-using-the-osisoft-pi-web-api-node-with-fred-cloud-node-red/).
 
