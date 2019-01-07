@@ -21,9 +21,12 @@
 var request = require('request');
 var Promise = require('bluebird');
 
+
 module.exports = function (RED) {
   'use strict';
 
+
+	
   function webAPIClientNode(config) {
     RED.nodes.createNode(this, config);
     var node = this;
@@ -85,7 +88,7 @@ module.exports = function (RED) {
   webAPIClientNode.prototype.writeByCustomUrl = function (protocol, url, method, data, node) {
     return new Promise(function(resolve, reject) {
       var requestOptions = {
-        url: protocol + node.server.baseUrl + url + config.orderBy,
+        url: protocol + node.server.baseUrl + url,
         headers: {
           'Authorization': node.server.generateAuth(),
           'Content-Type': 'application/json'
@@ -240,7 +243,13 @@ module.exports = function (RED) {
     node.server = RED.nodes.getNode(config.server);
     node.webId = config.webId;
     node.dataType = config.dataType || 'value';
-
+	
+	if(config.orderBy == '1'){
+		node.order = "?sortField=Name&sortOrder=Ascending";				
+	} else {
+		node.order = "?sortField=Name&sortOrder=Descending";
+	};
+	
     if(node.server === null || typeof node.server === "undefined") {
       node.error(RED._('web-api.errors.authentication-method-missing'));
     };
@@ -285,7 +294,7 @@ module.exports = function (RED) {
             break;
 
           case "custom":
-            node.customUrl = config.customUrl;
+            node.customUrl = config.customUrl + node.order;
             node.server.queryByCustomUrl(node.server.httpProtocal, node, {relativeUrl: node.customUrl}).then(function(result) {
               node.send(result);
             }).catch(function(e){

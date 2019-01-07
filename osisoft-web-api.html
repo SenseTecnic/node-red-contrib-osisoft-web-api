@@ -239,7 +239,8 @@
       piDB: {value:""},
       piTag: {value:""},
       dataType: {value:""},
-      customUrl: {value:""}
+      customUrl: {value:""},
+	  orderBy: {value:""}
     },
     icon: "OSIsoft-web-api.png",
     align: "left",
@@ -351,8 +352,8 @@
   <div class="form-row" id="node-custom-orderBy">
     <label for="node-input-orderBy"><i class="icon-tag"></i><span data-i18n="web-api.label.orderBy"></span></label>
     <select type="text" id="node-input-orderBy" style="width:70%;">
-      <option value="?sortField=Name&sortOrder=Ascending" data-i18n="web-api.label.ascending"></option>
-      <option value="?sortField=Name&sortOrder=Descending" data-i18n="web-api.label.descending"></option>
+      <option value="1" data-i18n="web-api.label.ascending"></option>
+      <option value="0" data-i18n="web-api.label.descending"></option>
 
     </select>
 
