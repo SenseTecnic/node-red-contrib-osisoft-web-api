@@ -94,7 +94,7 @@
     <li><b>Enable secure (SSL/TLS) connection:</b> Set to use SSL connection. For self-signed certificate, just leave <b>Verify server certificate</b> unchecked.</li>
     <li><b>Authenticate Method</b> Select authentication method. If <i>Basic</i> is selected, username and password would be required</li>
     <li><b>Username:</b> Enter the username to access the OSIsoft Pi Server. If domain name is a part of the username, please enter it before your username. For example, <code>my-domain\my-username</code></li>
-    <li><b>password:</b> Enter the password to access the OSIsoft Pi Server for the username entered</li> 
+    <li><b>password:</b> Enter the password to access the OSIsoft Pi Server for the username entered</li>
   </ul>
 </script>
 
@@ -124,24 +124,28 @@
       $("#node-path-fields").hide();
       $("#node-webId-fields").hide();
       $("#node-custom-url").hide();
+      $("#node-custom-orderBy").hide();
       $('#node-custom-method').hide();
-    
+
       var showWriteFields = function () {
         var writeMethodSelected = $("#node-input-writeMethod").val();
         if (writeMethodSelected === 'webId') {
           $("#node-webId-fields").show();
           $("#node-path-fields").hide();
           $("#node-custom-url").hide();
+          $("#node-custom-orderBy").hide();
           $('#node-custom-method').show();
         } else if (writeMethodSelected === 'path') {
           $("#node-path-fields").show();
           $("#node-webId-fields").hide();
           $("#node-custom-url").hide();
+          $("#node-custom-orderBy").hide();
           $('#node-custom-method').show();
         } else if (writeMethodSelected === 'custom') {
           $("#node-path-fields").hide();
           $("#node-webId-fields").hide();
           $("#node-custom-url").show();
+          $("#node-custom-orderBy").show();
           $('#node-custom-method').show();
       };
     };
@@ -149,7 +153,7 @@
         showWriteFields();
       });
       showWriteFields();
-    }    
+    }
   });
 </script>
 
@@ -174,22 +178,22 @@
     <div class="form-row">
       <label for="node-input-webId"><i class="fa fa-bookmark"></i><span data-i18n="web-api.label.webId"></span></label>
       <input type="text" id="node-input-webId">
-    </div> 
-  </div> 
+    </div>
+  </div>
   <div class="form-row" id="node-path-fields">
     <div class="form-row">
       <label for="node-input-piDB"><i class="fa fa-bookmark"></i><span data-i18n="web-api.label.piDb"></span></label>
       <input type="text" id="node-input-piDB">
-    </div> 
+    </div>
     <div class="form-row">
       <label for="node-input-piTag"><i class="fa fa-bookmark"></i><span data-i18n="web-api.label.piTag"></span></label>
       <input type="text" id="node-input-piTag">
-    </div> 
+    </div>
   </div>
   <div class="form-row" id="node-custom-url">
     <label for="node-input-customUrl"><i class="fa fa-bookmark"></i><span data-i18n="web-api.label.URL"></span></label>
-    <input type="text" id="node-input-customUrl">    
-  </div>  
+    <input type="text" id="node-input-customUrl">
+  </div>
   <div class="form-row" id="node-custom-method">
     <label for="node-input-requestMethod"><i class="icon-tag"></i><span data-i18n="web-api.label.requestMethod"></span></label>
     <select type="text" id="node-input-requestMethod" style="width:70%;">
@@ -215,8 +219,8 @@
                 <li>Pi Tag: Enter the name of the Pi Element</li>
               </ul>
             </li>
-            <li><i>By Custom URL:</i> Write to an URL relative to the base Web API URL set in the configuration node. 
-          </ul>   
+            <li><i>By Custom URL:</i> Write to an URL relative to the base Web API URL set in the configuration node.
+          </ul>
       </li>
       <li><b>Request Method:</b> Set the request method</li>
     </ul>
@@ -235,7 +239,8 @@
       piDB: {value:""},
       piTag: {value:""},
       dataType: {value:""},
-      customUrl: {value:""}
+      customUrl: {value:""},
+	  orderBy: {value:""}
     },
     icon: "OSIsoft-web-api.png",
     align: "left",
@@ -249,6 +254,7 @@
       $("#node-path-fields").hide();
       $("#node-webId-fields").hide();
       $("#node-custom-url").hide();
+      $("#node-custom-orderBy").hide();
       $("#node-datatype").hide();
 
       var showQueryFields = function () {
@@ -257,23 +263,27 @@
           $("#node-webId-fields").show();
           $("#node-path-fields").hide();
           $("#node-custom-url").hide();
+          $("#node-custom-orderBy").hide();
           $("#node-datatype").show();
         } else if (queryMethodSelected === 'path') {
           $("#node-path-fields").show();
           $("#node-webId-fields").hide();
           $("#node-custom-url").hide();
+          $("#node-custom-orderBy").hide();
           $("#node-datatype").show();
         } else if (queryMethodSelected === 'custom') {
           $("#node-path-fields").hide();
           $("#node-webId-fields").hide();
           $("#node-datatype").hide();
           $("#node-custom-url").show();
+          $("#node-custom-orderBy").show();
         } else if (queryMethodSelected === 'listAllAssertDb' || queryMethodSelected === 'ListAllElements'
                     || queryMethodSelected === 'ListAllDataServers' || queryMethodSelected === 'ListAllPoints') {
           $("#node-path-fields").hide();
           $("#node-webId-fields").hide();
           $("#node-datatype").hide();
           $("#node-custom-url").hide();
+          $("#node-custom-orderBy").hide();
         }
       };
       $("#node-input-queryMethod").change(function () {
@@ -292,7 +302,7 @@
   <div class="form-row">
     <label for="node-input-server"><i class="fa fa-bookmark"></i><span data-i18n="web-api.label.webApiServer"></span></label>
     <input type="text" id="node-input-server">
-  </div> 
+  </div>
   <div class="form-row">
     <label for="node-input-queryMethod"><i class="icon-tag"></i><span data-i18n="web-api.label.queryMethod"></span></label>
     <select type="text" id="node-input-queryMethod" style="width:70%;">
@@ -309,17 +319,17 @@
     <div class="form-row">
       <label for="node-input-webId"><i class="fa fa-bookmark"></i><span data-i18n="web-api.label.webId"></span></label>
       <input type="text" id="node-input-webId">
-    </div> 
-  </div> 
+    </div>
+  </div>
   <div class="form-row" id="node-path-fields">
     <div class="form-row">
       <label for="node-input-piDB"><i class="fa fa-bookmark"></i><span data-i18n="web-api.label.piDb"></span></label>
       <input type="text" id="node-input-piDB">
-    </div> 
+    </div>
     <div class="form-row">
       <label for="node-input-piTag"><i class="fa fa-bookmark"></i><span data-i18n="web-api.label.piTag"></span></label>
       <input type="text" id="node-input-piTag">
-    </div> 
+    </div>
   </div>
   <div class="form-row" id="node-datatype">
     <label for="node-input-dataType"><i class="icon-tag"></i><span data-i18n="web-api.label.dataType"></span></label>
@@ -336,8 +346,20 @@
   </div>
   <div class="form-row" id="node-custom-url">
     <label for="node-input-customUrl"><i class="fa fa-bookmark"></i><span data-i18n="web-api.label.URL"></span></label>
-    <input type="text" id="node-input-customUrl">    
+    <input type="text" id="node-input-customUrl">
   </div>
+
+  <div class="form-row" id="node-custom-orderBy">
+    <label for="node-input-orderBy"><i class="icon-tag"></i><span data-i18n="web-api.label.orderBy"></span></label>
+    <select type="text" id="node-input-orderBy" style="width:70%;">
+      <option value="1" data-i18n="web-api.label.ascending"></option>
+      <option value="0" data-i18n="web-api.label.descending"></option>
+
+    </select>
+
+  </div>
+
+
 </script>
 
 <script type="text/x-red" data-help-name="web-api-query">
@@ -355,12 +377,12 @@
                 <li>Pi Tag: Enter the name of the Pi Element</li>
               </ul>
             </li>
-            <li><i>By Custom URL:</i> Write to an URL relative to the base Web API URL set in the configuration node. 
+            <li><i>By Custom URL:</i> Write to an URL relative to the base Web API URL set in the configuration node.
             <li><i>List All Assert Servers: </i>List all assert servers from the Pi server</li>
             <li><i>List All DBs in Assert Servers: </i>List all databases from all assert servers</li>
             <li><i>List All Data Servers: </i>List all data servers from the Pi server</li>
-            <li><i>List All points in Data Servers: </i>List all points from all data servers</li>    
-          </ul>   
+            <li><i>List All points in Data Servers: </i>List all points from all data servers</li>
+          </ul>
       </li>
       <li><b>Data type:</b> Choose which field of the data point to return.</li>
     </ul>

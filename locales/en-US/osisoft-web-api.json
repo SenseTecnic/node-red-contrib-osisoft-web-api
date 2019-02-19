@@ -36,7 +36,10 @@
             "post":" POST",
             "put":" PUT",
             "delete":" DELETE",
-            "requestMethod":" Request Method"
+            "requestMethod":" Request Method",
+            "orderBy":"Order By",
+            "ascending":"Ascending",
+            "descending":"Descending"
         },
         "errors": {
             "client-undefined": "Please configure your OSIsoft server connection",

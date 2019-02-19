@@ -15,15 +15,18 @@
  * limitations under the License.
  *
  * Modifications copyright (C) 2017 Sense Tecnic Systems, Inc.
- * 
+ *
  **/
 
-var request = require('request'); 
+var request = require('request');
 var Promise = require('bluebird');
+
 
 module.exports = function (RED) {
   'use strict';
 
+
+	
   function webAPIClientNode(config) {
     RED.nodes.createNode(this, config);
     var node = this;
@@ -42,7 +45,7 @@ module.exports = function (RED) {
         this.hostOptions = {};
         tlsNode.addTLSOptions(this.hostOptions);
       };
-    } 
+    }
 
     this.httpProtocal = (this.usetls)? 'https://' : 'http://';
 
@@ -57,7 +60,7 @@ module.exports = function (RED) {
         return "Basic " + buffer.toString('base64');
       } else if (this.authenticateMethod === 'anonymous') {
         return "";
-      };      
+      };
     };
   };
 
@@ -77,13 +80,13 @@ module.exports = function (RED) {
     };
   };
 
-  webAPIClientNode.prototype.writeByWebId = function (protocol, webId, method, data, node) { 
+  webAPIClientNode.prototype.writeByWebId = function (protocol, webId, method, data, node) {
     var url= '/streams/' + webId + "/value";
     return node.server.writeByCustomUrl(protocol, url, method, data, node);
-  };    
+  };
 
   webAPIClientNode.prototype.writeByCustomUrl = function (protocol, url, method, data, node) {
-    return new Promise(function(resolve, reject) { 
+    return new Promise(function(resolve, reject) {
       var requestOptions = {
         url: protocol + node.server.baseUrl + url,
         headers: {
@@ -110,7 +113,7 @@ module.exports = function (RED) {
         catch(e) {
           return reject(e);
         };
-      });      
+      });
     });
   };
 
@@ -146,7 +149,7 @@ module.exports = function (RED) {
         method: "GET",
         rejectUnauthorized: false //Ignore self-signed certificate on Web API server
       };
-      
+
       request(requestOptions, function(error, response) {
         if(error) {
           return reject(error);
@@ -172,7 +175,7 @@ module.exports = function (RED) {
     node.webId = config.webId;
     node.piDB = config.piDB;
     node.piTag = config.piTag;
-    
+
     if(node.server === null || typeof node.server === "undefined") {
       node.error(RED._('web-api.errors.authentication-method-missing'));
     };
@@ -203,14 +206,14 @@ module.exports = function (RED) {
               node.piTag = config.piTag;
               var path = '\\\\' + node.piDB.concat("\\", node.piTag);
               var urlparam = encodeURIComponent(path);
-              
+
               node.server.queryByPath (node.server.httpProtocal, urlparam, node).then(function (result) {
                 return node.server.writeByWebId(node.server.httpProtocal, result.WebId, config.requestMethod, msg.payload, node);
               }).then(function(result) {
                 node.send(result);
               }).catch(function(e) {
                 node.error(e);
-              }); 
+              });
             }
             break;
 
@@ -233,14 +236,20 @@ module.exports = function (RED) {
   };
 
   RED.nodes.registerType("web-api-write", webApiWriteNode);
- 
+
   function webApiQueryNode(config) {
     RED.nodes.createNode(this, config);
-    var node = this;    
+    var node = this;
     node.server = RED.nodes.getNode(config.server);
     node.webId = config.webId;
     node.dataType = config.dataType || 'value';
-
+	
+	if(config.orderBy == '1'){
+		node.order = "?sortField=Name&sortOrder=Ascending";				
+	} else {
+		node.order = "?sortField=Name&sortOrder=Descending";
+	};
+	
     if(node.server === null || typeof node.server === "undefined") {
       node.error(RED._('web-api.errors.authentication-method-missing'));
     };
@@ -273,7 +282,7 @@ module.exports = function (RED) {
               node.piTag = config.piTag;
               var path = '\\\\' + node.piDB.concat("\\", node.piTag);
               var urlparam = encodeURIComponent(path);
-              
+
               node.server.queryByPath(node.server.httpProtocal, urlparam, node).then(function(result) {
                 return node.server.queryByWebId(node.server.httpProtocal, result.WebId, node, node.dataType);
               }).then(function(result) {
@@ -281,11 +290,11 @@ module.exports = function (RED) {
               }).catch(function(e){
                 node.error(e);
               });
-            }; 
+            };
             break;
 
           case "custom":
-            node.customUrl = config.customUrl;
+            node.customUrl = config.customUrl + node.order;
             node.server.queryByCustomUrl(node.server.httpProtocal, node, {relativeUrl: node.customUrl}).then(function(result) {
               node.send(result);
             }).catch(function(e){
@@ -296,9 +305,9 @@ module.exports = function (RED) {
           case "listAllAssetDb":
             var assetDb = [];
             var promises = [];
-          
-            var getDb = function(url, node) {             
-              return new Promise(function(resolve, reject) {            
+
+            var getDb = function(url, node) {
+              return new Promise(function(resolve, reject) {
                 resolve(node.server.queryByCustomUrl(node.server.httpProtocal, node, {fullUrl:url}));
               })
             };
@@ -330,20 +339,20 @@ module.exports = function (RED) {
             });
             break;
 
-          case "listAllAssetServers":    
+          case "listAllAssetServers":
             node.server.queryByCustomUrl(node.server.httpProtocal, node, {relativeUrl:'/assetservers'}).then(function(result) {
               node.send(result);
             }).catch(function(e){
               node.error(e)
-            });   
+            });
             break;
 
           case "listAllPoints":
             var points = [];
             var promises = [];
-          
-            var getDataServers = function(url, node) {             
-              return new Promise(function(resolve, reject) {            
+
+            var getDataServers = function(url, node) {
+              return new Promise(function(resolve, reject) {
                 resolve(node.server.queryByCustomUrl(node.server.httpProtocal, node, {fullUrl:url}));
               })
             };
@@ -364,7 +373,7 @@ module.exports = function (RED) {
               });
             }).catch(function(e) {
               node.error(e);
-            });                    
+            });
             break;
 
           default:
@@ -377,6 +386,6 @@ module.exports = function (RED) {
       };
     });
   };
-    
-  RED.nodes.registerType("web-api-query", webApiQueryNode);  
+
+  RED.nodes.registerType("web-api-query", webApiQueryNode);
 };
