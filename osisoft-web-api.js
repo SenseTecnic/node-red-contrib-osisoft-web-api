@@ -91,7 +91,8 @@ module.exports = function (RED) {
         url: protocol + node.server.baseUrl + url,
         headers: {
           'Authorization': node.server.generateAuth(),
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+	  'X-Requested-With' : 'XMLHttpRequest' //Proposed add-in to Allow Write data connection via pi web api to PI when "EnableCSRFDefense": true
         },
         json:true,
         "Cache-Control": "no-cache",
